@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exercise 5</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <!-- React + ReactDOM -->
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <!-- Chatbot logic + Date library -->
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+
+    <script type="text/babel">
+      // This component now receives data from its parent via 'props'
+      function Counter({ count, onIncrement }) {
+        return (
+          <button onClick={onIncrement} style={{ marginRight: "8px" }}>
+            Clicked {count} {count === 1 ? "time" : "times"}
+          </button>
+        );
+      }
+
+      function App() {
+        // 3e. The state is now "lifted" to the parent
+        const [count, setCount] = React.useState(0);
+
+        const handleIncrement = () => {
+          setCount(count + 1);
+        };
+
+        // 3f. Reset function
+        const handleReset = () => {
+          setCount(0);
+        };
+
+        return (
+          <>
+            {/* Both counters use the same 'count' state */}
+            <Counter count={count} onIncrement={handleIncrement} />
+            <Counter count={count} onIncrement={handleIncrement} />
+
+            <button onClick={handleReset}>Reset</button>
+          </>
+        );
+      }
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.render(<App />, container);
+    </script>
+  </body>
+</html>

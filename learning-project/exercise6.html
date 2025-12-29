@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exercise 4</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <!-- React + ReactDOM -->
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <!-- Chatbot logic + Date library -->
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+
+    <script type="text/babel">
+      function App() {
+        //Create state to store the text(starts as an empty string)
+        const [name, setName] = React.useState("");
+
+        //Event Handler for the input change
+        const handleInputChange = (event) => {
+          //event.target.value gets the current text inside the input
+          setName(event.target.value);
+        };
+
+        //Reset button handler
+        const handleReset = () => {
+          setName(""); //clears the input
+        };
+
+        //Example button handler
+        const handleExample = () => {
+          setName(`Alice`); //Fills input with "Alice"
+        };
+
+        return (
+          <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+            {/* Controlled Input :- value={name} links the input display to our state
+                                    -onChange updates the state when we type */}
+
+            <input
+              type="text"
+              placeholder="Type a name here"
+              value={name}
+              onChange={handleInputChange}
+            />
+            {/* Fixed: Linked handleReset to a Reset button */}
+            <button onClick={handleReset} style={{ marginLeft: "5px" }}>
+              Reset
+            </button>
+
+            <button onClick={handleExample} style={{ marginLeft: "5px" }}>
+              Example
+            </button>
+
+            {/* Displaying the text dynamically */}
+            <p>Hello {name}</p>
+          </div>
+        );
+      }
+
+      const container = document.querySelector(".js-container");
+      ReactDOM.render(<App />, container);
+    </script>
+  </body>
+</html>

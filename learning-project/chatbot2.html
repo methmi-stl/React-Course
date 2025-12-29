@@ -3,6 +3,61 @@
   <head>
     <title>Chatbot</title>
     <meta charset="UTF-8" />
+    <style>
+      .send-button {
+        background-color: green;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        cursor: pointer;
+        margin-left: 10px;
+        font-size: 15px;
+      }
+      .send-button:hover {
+        background-color: darkgreen;
+      }
+      .chat-input {
+        padding: 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        flex-grow: 1;
+      }
+      .input-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .app-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        height: 100vh;
+      }
+      .user-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+      }
+      .bot-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 10px;
+      }
+      .message-text {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 15px;
+        background-color: #f1f1f1;
+      }
+    </style>
   </head>
   <body>
     <div class="js-container"></div>
@@ -22,18 +77,12 @@
       /* ------------------ Chat Message ------------------ */
       function ChatMessage({ message, sender }) {
         return (
-          <div
-            style={{
-              marginBottom: "10px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
+          <div className={sender === "user" ? "user-message" : "bot-message"}>
             {sender === "bot" && (
               <img src="robot.png" width="30" style={{ marginRight: "8px" }} />
             )}
 
-            <span>{message}</span>
+            <div className="message-text">{message}</div>
 
             {sender === "user" && (
               <img src="user.png" width="30" style={{ marginLeft: "8px" }} />
@@ -61,7 +110,11 @@
       function ChatInput({ setChatMessages }) {
         const [inputText, setInputText] = React.useState("");
 
-        function sendMessage() {
+        // 3m: Track if the bot is currently "thinking"
+        const [isLoading, setIsLoading] = React.useState(false);
+
+        //// 1. Added 'async' so we can use 'await' inside the function
+        async function sendMessage() {
           if (inputText.trim() === "") return;
 
           const userMessage = {
@@ -70,7 +123,23 @@
             id: crypto.randomUUID(),
           };
 
-          const botResponse = Chatbot.getResponse(inputText);
+          // 3l: Clear the textbox right after sending the message
+          setInputText("");
+
+          // Start loading
+          setIsLoading(true);
+
+          // 3l: Add the user message and a temporary "Loading..." message
+          const loadingId = crypto.randomUUID();
+          setChatMessages((prevMessages) => [
+            ...prevMessages,
+            userMessage,
+            { message: "Loading...", sender: "bot", id: loadingId },
+          ]);
+
+          // 2. Changed to getResponseAsync and added 'await'
+          // The code will now "pause" here for 1 second before moving to the next line
+          const botResponse = await Chatbot.getResponseAsync(inputText);
 
           const botMessage = {
             message: botResponse,
@@ -78,25 +147,40 @@
             id: crypto.randomUUID(),
           };
 
-          setChatMessages((prevMessages) => [
-            ...prevMessages,
-            userMessage,
-            botMessage,
-          ]);
-
-          setInputText("");
+          // Add the bot's response after the await finishes
+          // 3l: Replace the "Loading..." message with the actual response
+          setChatMessages((prevMessages) => {
+            // Filter out the message with the loadingId, then add the real botMessage
+            const messagesWithoutLoading = prevMessages.filter(
+              (msg) => msg.id !== loadingId
+            );
+            return [...messagesWithoutLoading, botMessage];
+          });
+          // 3m: Finished loading
+          setIsLoading(false);
+        }
+        //Handling Keyboard Enter key to send message
+        function handleKeyDown(event) {
+          if (event.key === "Enter") {
+            sendMessage();
+          } else if (event.key === "Escape") {
+            setInputText(""); //Clear text when escape is pressed
+          }
         }
 
         return (
-          <div style={{ marginBottom: "20px" }}>
+          <div className="input-container">
             <input
               placeholder="Send a message to Chatbot"
               value={inputText}
               size="30"
               onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              onKeyDown={handleKeyDown}
+              className="chat-input"
             />
-            <button onClick={sendMessage}>Send</button>
+            <button onClick={sendMessage} className="send-button">
+              Send
+            </button>
           </div>
         );
       }
@@ -119,10 +203,10 @@
         ]);
 
         return (
-          <>
-            <ChatInput setChatMessages={setChatMessages} />
+          <div className="app-container">
             <ChatMessages chatMessages={chatMessages} />
-          </>
+            <ChatInput setChatMessages={setChatMessages} />
+          </div>
         );
       }
 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exercise 4</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <!-- React + ReactDOM -->
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <!-- Chatbot logic + Date library -->
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+    <script src="https://unpkg.com/supersimpledev/dayjs.js"></script>
+
+    <script type="text/babel">
+      function Counter() {
+        //1. Initialize State
+        //React.useState(0) returns [currentValue, updaterFunction]
+        //Create a value called count, start it at 0, and give me a function (setCount) to change it.”
+
+        const [count, setCount] = React.useState(0);
+
+        const handleClick = () => {
+          //2.Update the state by adding 1
+          setCount(count + 1);
+
+          //log for exercise 3a requirment
+          console.log("Clicked");
+        };
+
+        return (
+          <>
+            <button onClick={handleClick}>
+              Clicked {count} {count === 1 ? "time" : "times"}
+            </button>
+          </>
+        );
+      }
+      function App() {
+        return (
+          <>
+            <Counter /><br />
+            <Counter />
+          </>
+        );
+      }
+
+      /* ------------------ Render ------------------ */
+      const container = document.querySelector(".js-container");
+      ReactDOM.render(<App />, container);
+    </script>
+  </body>
+</html>
